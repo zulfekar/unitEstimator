@@ -1,0 +1,550 @@
+<ui:composition xmlns:html="http://www.w3.org/1999/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:unitEstimator="http://www.unitEstimator.com"
+	xmlns:resources="http://www.unitEstimator.com/resources"
+	xmlns:portlet="http://java.sun.com/portlet" locale="#{Locale.locale}"
+	template="/themes/unitEstimator-theme-theme/templates/template.xhtml">
+	<ui:define name="title"></ui:define>
+	
+	<ui:define name="headTile">
+		<script language="javascript" type="text/javascript">
+				// <![CDATA[
+				var historyData = #{pricePart.partHistoryComponent.partHistoryData};
+				var currencySymbol = "#{pricePart.partHistoryComponent.currency}";
+				$(document).ready(function() {
+					loadHistoryChart(historyData); 				
+				});
+				// ]]>
+			</script>
+			
+		<resources:stylesheet src="css/jquery.jqzoom.css" />
+		<resources:script src="javascript/history-graph.js" />
+		<resources:script src="javascript/underscore-min.js" />
+	</ui:define>
+
+	<ui:define name="title">
+		<c:if test="#{pricePart.partPricingContext.name() == 'CREATION'}">
+			#{msgs.unitEstimator_browser_title_references_non_tarifees}
+        </c:if>
+		<c:if test="#{pricePart.partPricingContext.name() == 'VALIDATION'}">	
+			#{msgs.unitEstimator_browser_title_references_non_validees}
+        </c:if>
+		<c:if test="#{pricePart.partPricingContext.name() == 'MODIFICATION'}">
+			#{msgs.unitEstimator_browser_title_references_modify}
+        </c:if>
+	</ui:define>
+
+	<ui:define name="contentTile">
+	<div class="neoContentWrapperPartDetails" style="width: 1378px">
+		<div id="neoContentWrapperNoFilter1"
+			class="neoContentWrapperNoFilterPricePart">
+			<ice:form id="pricePartForm" >
+
+				<!-- ZONE 1 -->
+				<ui:include src="/portlet/part_pricing/partDetails.xhtml">
+					<ui:param name="part" value="#{pricePart.part}" />
+				</ui:include>
+
+				<div id="neoProductPriceColLft2">
+
+					<div id="neoProductPriceColLft1">
+						<div style="padding-left: 20px">
+							<p class="neoTblRowTitle2-w">
+								<span class="neoTblRowTitle1-w">#{msgs.unitEstimator_tarification_nomenclature}</span>
+							</p>
+							<ice:panelGrid columns="2">
+								<ui:include src="/portlet/part_pricing/segmentation.xhtml">
+									<ui:param name="segmentation"
+										value="#{pricePart.segmentationComponent}" />
+								</ui:include>
+								<ui:include src="/portlet/part_pricing/partType.xhtml">
+									<ui:param name="partType"
+										value="#{pricePart.partTypeComponent}" />
+								</ui:include>
+							</ice:panelGrid>
+						</div>
+
+						<ice:panelGroup styleClass="infoContent"
+							rendered="#{!empty pricePart.rule}">
+							<ui:include src="#{pricePart.pricingMethodInfoPage}">
+								<ui:param name="pricingMethod"
+									value="#{pricePart.pricingMethod}" />																	
+								<ui:param name="ruleName"
+									value="#{pricePart.rule}" />
+							</ui:include>
+						</ice:panelGroup>
+					</div>
+				</div>
+
+				<!-- div id="cacheDiv" /-->
+
+				<ice:panelGroup id="display_border">
+					<ice:panelGroup styleClass="add_bottom_border" />
+				</ice:panelGroup>
+
+				<!-- BEGIN OF THE BOTTOM RIGHT COLUMN PANEL -->
+				<div id="neoProductPriceColRgt1">
+					<ui:include src="/portlet/part_pricing/featuresConfig.xhtml">
+						<ui:param name="featuresConfig"
+							value="#{pricePart.featuresConfig}" />
+						<ui:param name="pricePart" value="#{pricePart}" />
+						<ui:param name="pricingMethod" value="#{pricePart.pricingMethod}" />
+					</ui:include>
+
+					<div id="neoProductPriceColRgtBtm3">
+
+						<ice:panelGroup rendered="#{!empty pricePart.rule}">
+							<!-- ZONE 7: Pricing table: Before unitEstimator, former, ... -->
+							<div class="resetWhiteSpace">
+								<ice:panelGroup styleClass="pricingTableWidth">
+									<p class="neoTblColTitle1">#{msgs.unitEstimator_common_pricing}</p>
+
+									<ice:dataTable id="procTable" width="100%"
+										value="#{pricePart.part}" var="article">
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_price_before_unitEstimator_short}" 
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText value="#{pricePart.part.prixAvantunitEstimator}"
+													styleClass="neoTblData1">
+													<f:converter converterId="icefaces.PrixConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginBeforeunitEstimatorRetailPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_price_old_actual_short}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.part.ancienPrixEnVigueur}">
+													<f:converter converterId="icefaces.PrixConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginFormerCurrentRetailPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText value="#{msgs.unitEstimator_price_actual_short}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.part.prixEnVigueur}">
+													<f:converter converterId="icefaces.PrixConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginCurrentRetailPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_price_target_unitEstimator_short}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.pricingInformation.prixCibleunitEstimator}">
+													<f:converter converterId="icefaces.MoneyConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginTargetPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_price_preconised_unitEstimator_short}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.pricingInformation.prixPreconiseunitEstimator}">
+													<f:converter converterId="icefaces.MoneyConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginRecommendedPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column
+											rendered="#{pricePart.partPricingContext.name() == 'MODIFICATION'}">
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_price_after_unitEstimator_short}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.part.prixValideunitEstimator}">
+													<f:converter converterId="icefaces.PrixConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginFinalPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column
+											rendered="#{pricePart.partPricingContext.name() == 'VALIDATION' and !empty pricePart.part.prixModifieunitEstimator}">
+											<f:facet name="header">
+												<center>
+													<ice:outputText
+														value="#{msgs.unitEstimator_tarification_updated_price}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.part.prixModifieunitEstimator}">
+													<f:converter converterId="icefaces.PrixConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginChangedPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+
+										<ice:column>
+											<f:facet name="header">
+												<center>
+													<ice:outputText value="#{msgs.unitEstimator_common_next_step}"
+														styleClass="neoTblColTitle2Mid-up" />
+												</center>
+											</f:facet>
+											<center>
+												<ice:outputText styleClass="neoTblData1"
+													value="#{pricePart.pricingInformation.prixPreconiseStep2}">
+													<f:converter converterId="icefaces.MoneyConverter" />
+												</ice:outputText>
+											</center>
+											<center>
+												<ice:outputText styleClass="neoTblData4"
+													value="#{pricePart.part.indicators.marginNextStepPrice}">
+													<f:converter converterId="icefaces.PourcentConverter" />
+												</ice:outputText>
+											</center>
+										</ice:column>
+									</ice:dataTable>
+
+								</ice:panelGroup>
+							</div>
+
+							<div style="margin-top: 20px;">
+								<ice:panelGrid columns="3">
+
+									<!-- ZONE 7: Selected retail price Label -->
+									<ice:panelGroup
+										styleClass="neoTbxWidthXLPricePart icePnlGrdCol1 icePnlGrdColHdr">
+										<ice:outputText
+											value="#{msgs.unitEstimator_tarification_prix_vente_retenu}" />
+									</ice:panelGroup>
+
+									<!-- ZONE 7: Selected retail price TextBox -->
+									<ice:panelGroup binding="#{pricePart.selectedPricePanel}"
+										styleClass="neoTbxWidthXLPricePart icePnlGrdCol1 icePnlGrdColHdr">
+										<ice:inputText id="selectedRetailInput" styleClass="neoTbxWidthS neoTbxTxtBigger"
+											value="#{pricePart.selectedPrice}" partialSubmit="true"
+											immediate="true"
+											onfocus="jQuery(this).addClass('textHighlight');"
+											onblur="jQuery(this).removeClass('textHighlight');deleteDash(this);"
+											onkeydown="treatEnterKeypressAsOnchange(event, this);"
+											onchange="eraseNotNumberValue(this); acceptOnlyDecimalNumber(this);" />
+									</ice:panelGroup>
+
+
+									<!-- ZONE8 -->
+									<c:if test="#{!empty pricePart.pricingInformation.priceOrigin.origin}">
+										<ice:panelGroup styleClass="icePnlGrdCol icePnlGrdColHdr" style="white-space: normal"
+											rendered="#{pricePart.priceOriginDisplayed}">
+
+											<ui:param name="price_origin"
+												value="#{pricePart.pricingInformation.priceOrigin.origin}" />
+											<ui:param name="colon_character" value="&#58;&#160;" />
+											<ice:outputText escape="false"
+												value="#{fn:toUpperCase(msgs.unitEstimator_common_price_origin)}#{colon_character}" />
+											<ice:outputFormat escape="false" styleClass="icePnlGrdCol icePnlGrdColHdr"
+												value="#{msgs[pricePart.pricingInformation.priceOrigin.i18Name.key]}" >
+												<f:param value="#{pricePart.pricingInformation.priceOrigin.i18Name.params[0]}"/>
+												<f:param value="#{pricePart.pricingInformation.priceOrigin.i18Name.params[1]}"/>
+												<f:param value="#{pricePart.pricingInformation.priceOrigin.i18Name.params[2]}"/>
+											</ice:outputFormat>
+										</ice:panelGroup>
+									</c:if>
+								</ice:panelGrid>
+							</div>
+
+							<div style="margin-top: 20px;">
+								<ice:panelGroup
+									rendered="#{ !empty pricePart.pricingInformation and pricePart.pricingInformation.alerteAchat}">
+
+									<td
+										class="icePnlGrdCol1 icePnlGrdColHdr  neoTblData3 neoTbxTxt-hi">
+										<ice:outputText
+											styleClass="icePnlGrdCol1 icePnlGrdColHdr neoTblData3 neoTbxTxt-hi"
+											value="#{msgs.unitEstimator_status_cost_alert} : #{msgs.unitEstimator_tarification_marge_mini} " />
+									
+										<unitEstimator:textConverter styleClass=" neoTblData3 neoTbxTxt-hi"
+											rendered="#{pricePart.pricingMethod.minimumMargin ne null
+														and pricePart.pricingMethod.minimumMargin > 0}"
+											value="#{pricePart.pricingMethod.minimumMargin}">
+											<f:converter converterId="icefaces.PourcentConverter" />
+										</unitEstimator:textConverter>
+										<unitEstimator:textConverter styleClass=" neoTblData3 neoTbxTxt-hi"
+											rendered="#{pricePart.pricingMethod.minimumMargin eq null
+														or pricePart.pricingMethod.minimumMargin eq 0}"
+											value=" 0#{msgs.unitEstimator_common_pourcent}" />
+									</td>
+								</ice:panelGroup>
+
+								<ice:panelGroup
+											rendered="#{!empty pricePart.pricingInformation and pricePart.pricingInformation.implementationProgressive}">
+									<td
+										class="icePnlGrdCol1 icePnlGrdColHdr  neoTblData3 neoTbxTxt-hi">
+										<ice:outputText
+											styleClass="neoTblData3 neoTbxTxt-hi icePnlGrdColHdr icePnlGrdCol1"
+											value="#{msgs.unitEstimator_status_progressive_implementation} : #{msgs.unitEstimator_tarification_variation_max} " />
+
+										<unitEstimator:textConverter styleClass=" neoTblData3 neoTbxTxt-hi"
+											value="#{pricePart.pricingMethod.maximumAllowedVariation}">
+											<f:converter converterId="icefaces.PourcentConverter" />
+										</unitEstimator:textConverter>
+									</td>
+								</ice:panelGroup>
+							</div>
+
+							<div style="margin-top: 20px;">
+								<!-- Add messages here -->
+								<c:forEach var="msg" items="#{pricePart.messages}">
+									<ice:panelGroup rendered="#{not empty pricePart.messages and not pricePart.openPriceValidationConfirmationPopup and not pricePart.openFeaturesUpdatedConfirmationPopup}"
+										styleClass="iceMsgInfo" immediate="true">
+										<ice:outputText value="#{msg}" />
+									</ice:panelGroup>
+								</c:forEach>
+
+							</div>
+							<br></br>
+
+							<!-- Comment Textarea -->
+							<div id="neoProductRemarksWrap">
+								<div id="neoProductRemarks-dis">
+									<ice:inputTextarea id="commentaire"
+										value="#{pricePart.part.comment}" maxlength="250"
+										styleClass="nopadding" />
+								</div>
+								<br></br>
+
+								<div>
+									<!-- CREATE context -->
+									<ice:panelGroup
+										rendered="#{pricePart.partPricingContext.actions.contains('CREATE')}">
+										<ice:commandButton value="#{msgs.unitEstimator_tarification_submit}"  
+											action="#{pricePart.submitPrice}" style="margin-right:14px;"
+											partialSubmit="true" styleClass="neoInpBtn-hi" />
+
+										<ice:commandButton
+											value="#{msgs.unitEstimator_tarification_validate}"
+											actionListener="#{pricePart.confirmPriceValidation}"
+											partialSubmit="true" styleClass="neoInpBtn-hi"
+											rendered="#{permissionDisplay.centralPricesValidationAccess and !pricePart.featuresConfigModified}" />
+
+										<ice:commandButton
+											value="#{msgs.unitEstimator_tarification_validate}"
+											actionListener="#{pricePart.openFeaturesUpdatedConfirmationPopup}"
+											partialSubmit="true" styleClass="neoInpBtn-hi"
+											rendered="#{pricePart.featuresConfigModified}">
+											<f:attribute name="actionAfterConfirm" value="VALIDATE" />
+										</ice:commandButton>
+									</ice:panelGroup>
+
+									<!-- VALIDATE & MODIFY contexts needs featureConfig not null -->
+									<ice:panelGroup>
+
+										<!-- MODIFICATION context -->
+										<ice:panelGroup
+											rendered="#{pricePart.partPricingContext.actions.contains('MODIFY')}">
+											<!-- 1st step: Modify prix -->
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_modify}"
+												action="#{pricePart.modifyPrice}" partialSubmit="true"
+												styleClass="neoInpBtn-hi" style="margin-right:14px;"
+												rendered="#{!pricePart.featuresConfigModified}" />
+
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_modify}"
+												actionListener="#{pricePart.openFeaturesUpdatedConfirmationPopup}"
+												partialSubmit="true" styleClass="neoInpBtn-hi"
+												style="margin-right:14px;"
+												rendered="#{pricePart.featuresConfigModified}">
+												<f:attribute name="actionAfterConfirm" value="MODIFY" />
+											</ice:commandButton>
+
+											<!-- 2nd step: Validate the modifications -->
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_validate}"
+												actionListener="#{pricePart.confirmPriceValidation}"
+												partialSubmit="true" styleClass="neoInpBtn-hi"
+												rendered="#{permissionDisplay.centralPricesValidationAccess and !pricePart.featuresConfigModified}" />
+
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_validate}"
+												actionListener="#{pricePart.openFeaturesUpdatedConfirmationPopup}"
+												partialSubmit="true" styleClass="neoInpBtn-hi"
+												rendered="#{permissionDisplay.centralPricesValidationAccess and pricePart.featuresConfigModified}">
+												<f:attribute name="actionAfterConfirm" value="VALIDATE" />
+											</ice:commandButton>
+										</ice:panelGroup>
+
+										<!-- VALIDATE context -->
+										<ice:panelGroup
+											rendered="#{pricePart.partPricingContext.actions.contains('VALIDATE')}">
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_validate}"
+												actionListener="#{pricePart.confirmPriceValidation}"
+												partialSubmit="true" styleClass="neoInpBtn-hi"
+												rendered="#{!pricePart.featuresConfigModified}" />
+
+											<ice:commandButton
+												value="#{msgs.unitEstimator_tarification_validate}"
+												actionListener="#{pricePart.openFeaturesUpdatedConfirmationPopup}"
+												partialSubmit="true" styleClass="neoInpBtn-hi"
+												rendered="#{pricePart.featuresConfigModified}">
+												<f:attribute name="actionAfterConfirm" value="VALIDATE" />
+											</ice:commandButton>
+										</ice:panelGroup>
+
+										<!-- BEGIN conditionally include popups. Pass context as ui:param -->
+										<c:if
+											test="#{pricePart.partPricingContext.name() == 'CREATION'}">
+											<ui:include
+												src="/portlet/part_pricing/popups/featuresUpdatedConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/priceValidationConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/goToValidatedRuleConfirmation.xhtml">
+												<ui:param name="context" value="CREATION" />
+											</ui:include>
+										</c:if>
+										<c:if
+											test="#{pricePart.partPricingContext.name() == 'MODIFICATION'}">
+											<ui:include
+												src="/portlet/part_pricing/popups/featuresUpdatedConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/priceValidationConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/goToValidatedRuleConfirmation.xhtml">
+												<ui:param name="context" value="MODIFICATION" />
+											</ui:include>
+										</c:if>
+										<c:if
+											test="#{pricePart.partPricingContext.name() == 'VALIDATION'}">
+											<ui:include
+												src="/portlet/part_pricing/popups/featuresUpdatedConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/priceValidationConfirmation.xhtml" />
+											<ui:include
+												src="/portlet/part_pricing/popups/goToValidatedRuleConfirmation.xhtml">
+												<ui:param name="context" value="VALIDATION" />
+											</ui:include>
+										</c:if>
+										<!-- END conditionally include popups. Pass context as ui:param -->
+									</ice:panelGroup>
+								</div>
+							</div>
+						</ice:panelGroup>
+					</div>
+
+					<!-- Back to Catalog & Consult Rule buttons -->
+					<div>
+						<!-- Consult Rule Button -->
+						<ice:commandButton value="#{msgs.unitEstimator_link_to_validated_rule}"
+							rendered="#{pricePart.displayGoToValidatedRuleLink}"
+							actionListener="#{pricePart.consultRule}"
+							styleClass="neoCmdBtn-hi"
+							style="margin-left:14px;margin-top:10px;float:right;" />
+
+						<!-- Back to Catalog Button -->
+						<ice:commandButton value="#{msgs.unitEstimator_produit_detail_retour}"
+							action="#{pricePart.backToCatalog}" styleClass="neoCmdBtn"
+							style="margin-top:10px;float:right;" />
+
+					</div>
+				</div>
+				
+				<!-- Part History  -->
+			<div id="historyGraphPricePart">
+				<ui:include src="../catalogue/history-graph.xhtml">
+					<ui:param name="scrollBarRendered" value="#{pricePart.partHistoryComponent.scrollBarRendered}" />
+					<ui:param name="scrollBarWidth" value="#{pricePart.partHistoryComponent.scrollBarWidth}" />
+				</ui:include>
+			</div>	
+
+				<ui:include src="../util/part-history-table-template.xhtml">
+					<ui:param name="component"
+						value="#{pricePart.partHistoryComponent}" />
+					<ui:param name="customMessageCss" value="setPriceExportMessage" />
+				</ui:include>
+
+			</ice:form>
+		</div>
+	</div>
+	<div id="cacheDiv" />
+	<ui:include src="../util/util.xhtml" />
+	</ui:define>
+</ui:composition>

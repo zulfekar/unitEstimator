@@ -1,0 +1,507 @@
+<html xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:unitEstimator="http://www.unitEstimator.com"
+	xmlns:resources="http://www.unitEstimator.com/resources">
+
+<div class="resetWhiteSpace" style="clear: both;">
+	<div id="exportErrors" class="exportErrors #{customMessageCss}">
+		<h:messages errorClass="iceMsgError" infoClass="iceMsgInfo" />
+	</div>
+	<div class="priceTableCaption">
+		<ice:commandButton actionListener="#{component.exportHistory}"
+			value="#{msgs.unitEstimator_common_export}" styleClass="neoCmdBtn"
+			style="margin-right: 155px;" />
+		<div class="priceTableCaptionTitle tableDataCommon tableDataGray">
+			#{msgs.history_element_common_retail_price}
+			<div class="priceTableCaptionTitle_underline"></div>
+		</div>
+	</div>
+
+	<ice:dataTable id="history-table" value="#{component.partPrices}"
+		var="partPrice" styleClass="priceTable">
+
+		<!-- First column (Central) - has no header/facet -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+
+			<ice:outputText styleClass="neoTblRowTitle1"
+				rendered="#{partPrice.type != 'HISTORY'}"
+				value="#{partPrice.countryName}" />
+
+			<ice:outputText value="#{partPrice.changeDate}"
+				rendered="#{partPrice.type == 'HISTORY'}"
+				styleClass="tableDataCommon tableDataRed">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</ice:outputText>
+
+			<ice:outputText value="#{partPrice.changeDate}"
+				rendered="#{partPrice.type == 'HISTORY'}"
+				styleClass="tableDataCommon">
+				<f:convertDateTime pattern="HH:mm:ss" />
+			</ice:outputText>
+
+			<ice:outputText rendered="#{partPrice.type == 'HISTORY'}"
+				value="#{partPrice.changeAuthor.userFirstName} #{partPrice.changeAuthor.userLastName}"
+				styleClass="tableDataCommon tableDataGray tableDataItalic" />
+		</ice:column>
+
+		<!-- Sablier - no header/facet -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass} priceTableIcon">
+			<h:commandLink onclick="toggleHistoryDisplay();"
+				rendered="#{not empty partPrice.history}">
+				<center class="#{partPrice.historyTogglerCssClassName}">
+					<ice:graphicImage url="#{partPrice.historyTogglerIconUrl}" />
+				</center>
+			</h:commandLink>
+		</ice:column>
+
+		<!-- Origin column, it has header (facet) -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_priceupdateorigin}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText value="#{msgs[partPrice.origin.shortKey]}"
+				rendered="#{partPrice.type == 'HISTORY'}"
+				styleClass="tableDataCommon" />
+		</ice:column>
+
+		<!-- Implementation date column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_applicationdate}"
+					styleClass="tableDataCommon tableDataGray" escape="false" />
+			</f:facet>
+			<ice:outputText value="#{partPrice.applicationDate}"
+				rendered="#{partPrice.type == 'HISTORY'}"
+				styleClass="tableDataCommon tableDataRed">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</ice:outputText>
+
+			<ice:outputText
+				value="#{component.applicationDateOfTheLastHistory != null ? component.applicationDateOfTheLastHistory : '-'}"
+				rendered="#{partPrice.type == 'CENTRAL'}"
+				styleClass="tableDataCommon tableDataRed">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</ice:outputText>
+
+		</ice:column>
+
+		<!-- Before unitEstimator column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_pricebeforeunitEstimator}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.priceBeforeunitEstimator}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.priceBeforeunitEstimatorEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.priceBeforeunitEstimatorEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.priceBeforeunitEstimatorEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4"
+				value="#{partPrice.marginBeforeunitEstimatorRetailPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+
+		<!-- Former column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_formerprice}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+
+
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.formerCurrrentPrice}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.formerCurrrentPriceEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.formerCurrrentPriceEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.formerCurrrentPriceEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4"
+				value="#{partPrice.marginFormerCurrentRetailPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+
+		<!-- Current column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_currentprice}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.currentRetailPrice}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.currentRetailPriceEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.currentRetailPriceEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.currentRetailPriceEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4"
+				value="#{partPrice.marginCurrentRetailPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+
+		<!-- Target Column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_targetprice}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.targetPrice}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.targetPriceEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.targetPriceEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.targetPriceEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4" value="#{partPrice.marginTargetPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+
+		<!-- Recommended column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_recommendedprice}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.recommendedPrice}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.recommendedPriceEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.recommendedPriceEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+
+			<ice:graphicImage
+				rendered="#{partPrice.recommendedPriceEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4" value="#{partPrice.marginRecommendedPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+
+		<!-- Validated column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_validatedprice}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.validatedunitEstimatorPrice}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.validatedunitEstimatorPriceEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.validatedunitEstimatorPriceEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.validatedunitEstimatorPriceEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+
+			<ice:outputText rendered="#{partPrice.type != 'HISTORY'}"
+				styleClass="neoTblData4" value="#{partPrice.marginFinalPrice}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+		</ice:column>
+		<!-- Purchase cost column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText
+					value="#{msgs.history_element_centralprice_purchase_cost}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText
+				styleClass="#{partPrice.textCSSStyleClass} beforeArrowStyleClass"
+				value="#{partPrice.purchaseCost}">
+				<f:converter converterId="icefaces.MoneyConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.purchaseCostEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.purchaseCostEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.purchaseCostEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+		</ice:column>
+		<!-- Quantity column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText value="#{msgs.history_element_quantity}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText styleClass="beforeArrowStyleClass"
+				value="#{partPrice.quantity1}">
+				<f:converter converterId="icefaces.NumericConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.quantityEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.quantityEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.quantityEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+		</ice:column>
+		<!-- Discount column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText value="#{msgs.unitEstimator_common_discount}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText styleClass="neoTblData3 beforeArrowStyleClass"
+				value="#{partPrice.networkDiscount}">
+				<f:converter converterId="icefaces.PourcentConverter" />
+			</ice:outputText>
+
+			<ice:graphicImage
+				rendered="#{partPrice.discountEvolution eq 'INCREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_up.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.discountEvolution eq 'DECREASE'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_down.png"
+				width="15" />
+
+			<ice:graphicImage
+				rendered="#{partPrice.discountEvolution eq 'UNCHANGED'}"
+				styleClass="noborderimg"
+				url="/themes/unitEstimator-theme-theme/images/util/arrow_blank.png"
+				width="15" />
+
+		</ice:column>
+
+		<!-- Price Status column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText value="#{msgs.unitEstimator_produit_detail_price_status}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<unitEstimator:statutConverter value="#{partPrice.status}"
+				styleClass="neoTblData3" />
+		</ice:column>
+
+		<!-- Comment column -->
+		<ice:column styleClass="#{partPrice.colCSSStyleClass}">
+			<f:facet name="header">
+				<ice:outputText value="#{msgs.history_element_centralprice_comment}"
+					styleClass="tableDataCommon tableDataGray" />
+			</f:facet>
+			<ice:outputText styleClass="tableDataCommon"
+				value="#{partPrice.changeComment}"
+				title="#{partPrice.changeComment}" />
+		</ice:column>
+
+	</ice:dataTable>
+</div>
+<script language="javascript" type="text/javascript">
+	// <![CDATA[
+
+	var historyTableDisplay = true;
+
+	$('document').ready(function() {
+		scrollHistoryTable();
+		allignHistoryTableHeader();
+		toggleHistoryDisplay();
+	});
+
+	function scrollHistoryTable() {
+		var tbodyContent = '';
+		var scrollabletbodyContent = '';
+		tbodyContent = $("table.iceDatTbl.priceTable").find("tbody").html();
+		var prepended = '<tr>' + '<td colspan="15" style="padding-left: 0px">'
+				+ '<div id="scrollTable" class="scrollTable">' + '<table>';
+		var appended = '</table>' + '</div>' + '</td>' + '</tr>';
+
+		scrollabletbodyContent = prepended + tbodyContent + appended;
+		$("table.iceDatTbl.priceTable").find("tbody").html(
+				scrollabletbodyContent);
+
+	}
+
+	function allignHistoryTableHeader() {
+		var headerWidth = [ 135, 40, 90, 90, 94, 92, 92, 94, 87, 99, 86, 92,
+				88, 94, 110 ];
+		var headerHeight = 37;
+		$('.iceDatTbl.priceTable th').each(function(i) {
+			$(this).css("width", headerWidth[i]);
+			$(this).css("height", headerHeight);
+		});
+	}
+
+	function toggleHistoryDisplay() {
+		if (historyTableDisplay) {
+			$("#scrollTable tr:not(:first-child)").hide();
+			$('div#scrollTable').removeClass('scrollTable');
+			$('div#scrollTable').find("center").removeClass('collapseIcon');
+			$('div#scrollTable').find("center").addClass('expandIcon');
+			$("center.expandIcon")
+					.find("img")
+					.attr(
+							"src",
+							"/ue/themes/unitEstimator-theme-theme/images/unitEstimator_theme/part_history_toggler_off_icon.png");
+			historyTableDisplay = false;
+
+		} else {
+			$("#scrollTable tr:not(:first-child)").show();
+			$('div#scrollTable').addClass('scrollTable');
+			$('div#scrollTable').find("center").removeClass('expandIcon');
+			$('div#scrollTable').find("center").addClass('collapseIcon');
+			$("center.collapseIcon")
+					.find("img")
+					.attr(
+							"src",
+							"/ue/themes/unitEstimator-theme-theme/images/unitEstimator_theme/part_history_toggler_on_icon.png");
+			historyTableDisplay = true;
+		}
+	}
+
+	// ]]>
+</script>
+</html>
+
+

@@ -1,0 +1,631 @@
+<html xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:unitEstimator="http://www.unitEstimator.com"
+	xmlns:resources="http://www.unitEstimator.com/resources">
+<ui:composition
+	template="/themes/unitEstimator-theme-theme/templates/template.xhtml">
+	<ui:define name="title">
+		    #{msgs.unitEstimator_browser_title_catalogue_catalogue}
+		</ui:define>
+	<ui:define name="headTile">
+
+		<script language="javascript" type="text/javascript">
+			// <![CDATA[
+			var historyData = #{ProduitDetail.partHistoryComponent.partHistoryData};
+			var currencySymbol = "#{ProduitDetail.partHistoryComponent.currency}";
+			$(document).ready(function() {
+				//topmenu correction
+				//menuCorrection();
+				callZoom();
+				loadHistoryChart(historyData); 
+				
+			});
+			// ]]>
+		</script>
+
+		<resources:stylesheet src="css/detail_article.css" />
+		<resources:stylesheet src="css/jquery.jqzoom.css" />
+		<resources:script src="javascript/history-graph.js" />
+		<resources:script src="javascript/underscore-min.js" />
+	</ui:define>
+
+	<ui:define name="contentTile">
+		<ui:include src="/themes/unitEstimator-theme-theme/templates/onload.xhtml" />
+		<div id="neoContentWrapperNoFilter">
+			<h1>#{ProduitDetail.article.designation}
+				(#{ProduitDetail.article.reference})</h1>
+
+			<div id="neoDetailProductPanel">
+				<ice:form>
+					<ui:param name="maximumSize" value="48" />
+					<table>
+						<!-- main table -->
+						<tr>
+							<td class="top" width="340">
+								<div id="neoProductImg">
+									<div></div>
+									<table>
+										<tr>
+											<td>
+												<div id="bigImage_produit_detail">
+													<ice:panelGroup id="bigImage"
+														rendered="#{ProduitDetail.article.imageToDisplay != null}">
+
+														<a id="zoomLink"
+															href="#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.imageToDisplay}"
+															class="jqzoom" rel='gal1' title="Zoom"> <img
+															src="#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.imageToDisplay}"
+															class="imageTaille" id="imagePreview"
+															lang="#{facesContext.externalContext.requestContextPath}"
+															rel="#{ProduitDetail.article.id}"
+															alt="#{ProduitDetail.article.imageToDisplay}" />
+														</a>
+													</ice:panelGroup>
+													<ice:graphicImage value="/images/no_photo.jpg"
+														styleClass="imageTaille"
+														rendered="#{ProduitDetail.article.imageToDisplay == null}"
+														style="cursor:pointer;"
+														onclick="openPopupZoomPhoto('#{facesContext.externalContext.requestContextPath}',this,'#{ProduitDetail.article.id}',4, false);" />
+												</div>
+											</td>
+										</tr>
+
+										<!--TO REFACTOR-->
+										<tr>
+											<td><h:panelGroup
+													style="float:left; _border:solid 1px #bfbcb7;margin-top:10px;margin-right:9px;"
+													styleClass="miniature"
+													rendered="#{ProduitDetail.article.miniatureImage1 != null}">
+													<a id="zoomLinkThumbail1"
+														rel="{gallery: 'gal1', smallimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image1}',largeimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image1}'}">
+														<img class="photo_miniature" id="imagePreviewThumbnail1"
+														src='#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.miniatureImage1}' />
+													</a>
+												</h:panelGroup> <h:panelGroup
+													style="float:left; _border:solid 1px #bfbcb7;margin-top:10px;margin-right:9px;"
+													styleClass="miniature"
+													rendered="#{ProduitDetail.article.miniatureImage2 != null}">
+													<a id="zoomLinkThumbail2"
+														rel="{gallery: 'gal1', smallimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image2}',largeimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image2}'}">
+														<img class="photo_miniature" id="imagePreviewThumbnail2"
+														src='#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.miniatureImage2}' />
+													</a>
+												</h:panelGroup> <h:panelGroup
+													style="float:left; _border:solid 1px #bfbcb7;margin-top:10px;margin-right:9px;"
+													styleClass="miniature"
+													rendered="#{ProduitDetail.article.miniatureImage3 != null}">
+													<a id="zoomLinkThumbail3"
+														rel="{gallery: 'gal1', smallimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image3}',largeimage: '#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.image3}'}">
+														<img class="photo_miniature" id="imagePreviewThumbnail3"
+														src='#{facesContext.externalContext.requestContextPath}#{ProduitDetail.article.miniatureImage3}' />
+													</a>
+												</h:panelGroup></td>
+										</tr>
+										<!--TO REFACTOR-->
+
+									</table>
+								</div>
+							</td>
+							<td class="top">
+								<div>
+									<!-- TABLE TITLE -->
+									<table class="dataDescrTable">
+										<tr>
+											<td>
+												<div class="bandeaubleu"></div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<!-- TABLE DESCRIPTION DATA -->
+												<table>
+													<tr>
+														<td class="neoTbxWidthM" id="detailTableCellRef0"><span
+															class="neoTblData4Bis">#{msgs.unitEstimator_common_business_family}</span>
+														</td>
+														<td
+															class="neoTbxWidthXL troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																value="#{ProduitDetail.article.familleCommerciale.designation}"
+																title="#{ProduitDetail.article.familleCommerciale.designation}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM" id="detailTableCellRef1"><span
+															class="neoTblData4Bis">#{msgs.unitEstimator_common_part_type}</span>
+														</td>
+														<td
+															class="neoTbxWidthXL troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><ice:panelGroup
+																rendered="#{ProduitDetail.article.type == 'FAST_MOVER'}">
+																<unitEstimator:textConverter
+																	styleClass="neoTblData3 cutLongTextTemplate"
+																	value="#{msgs.unitEstimator_common_part_type_fast_mover}"
+																	title="#{msgs.unitEstimator_common_part_type_fast_mover}"
+																	size="#{maximumSize}" />
+															</ice:panelGroup> <ice:panelGroup
+																rendered="#{ProduitDetail.article.type == 'SLOW_MOVER'}">
+																<unitEstimator:textConverter
+																	styleClass="neoTblData3 cutLongTextTemplate"
+																	value="#{msgs.unitEstimator_common_part_type_slow_mover}"
+																	title="#{msgs.unitEstimator_common_part_type_slow_mover}"
+																	size="#{maximumSize}" />
+															</ice:panelGroup> <ice:panelGroup
+																rendered="#{ProduitDetail.article.type == 'NEW'}">
+																<unitEstimator:textConverter
+																	styleClass="neoTblData3 cutLongTextTemplate"
+																	value="#{msgs.unitEstimator_common_part_type_new}"
+																	title="#{msgs.unitEstimator_common_part_type_new}"
+																	size="#{maximumSize}" />
+															</ice:panelGroup></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_family}</span>
+														</td>
+														<td
+															class="neoTbxWidthXL troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.sousFamille.famille.code} - #{ProduitDetail.article.sousFamille.famille.nom}"
+																title="#{ProduitDetail.article.sousFamille.famille.code} - #{ProduitDetail.article.sousFamille.famille.nom}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_subfamily}</span>
+														</td>
+														<td
+															class="neoTbxWidthXL troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																value="#{ProduitDetail.article.sousFamille.nom}"
+																title="#{ProduitDetail.article.sousFamille.nom}"
+																size="#{maximumSize}" /></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<span class="neoTblData4Bis">#{msgs.unitEstimator_common_family_competitive_label}</span>
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthXL"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<ice:outputText
+																	value="#{msgs.unitEstimator_common_competitive}"
+																	styleClass="neoTblData3"
+																	rendered="#{ProduitDetail.article.sousFamille.famille.competitiveLabel eq 'COMPETITIVE'}" />
+																<ice:outputText value="#{msgs.unitEstimator_common_captive}"
+																	styleClass="neoTblData3"
+																	rendered="#{ProduitDetail.article.sousFamille.famille.competitiveLabel eq 'CAPTIVE'}" />
+																<ice:outputText value="-" styleClass="neoTblData3"
+																	rendered="#{empty ProduitDetail.article.sousFamille.famille.competitiveLabel}" />
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthM"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<span class="neoTblData4Bis">#{msgs.unitEstimator_common_subfamily_competitive_label}</span>
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthXL"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<ice:outputText
+																	value="#{msgs.unitEstimator_common_competitive}"
+																	styleClass="neoTblData3"
+																	rendered="#{ProduitDetail.article.sousFamille.competitiveLabel eq 'COMPETITIVE'}" />
+																<ice:outputText value="#{msgs.unitEstimator_common_captive}"
+																	styleClass="neoTblData3"
+																	rendered="#{ProduitDetail.article.sousFamille.competitiveLabel eq 'CAPTIVE'}" />
+																<ice:outputText value="-" styleClass="neoTblData3"
+																	rendered="#{empty ProduitDetail.article.sousFamille.competitiveLabel}" />
+															</ice:panelGroup></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<span class="neoTblData4Bis">#{msgs.unitEstimator_common_family_cti}</span>
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthM"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<c:choose>
+																	<c:when
+																		test="#{ProduitDetail.article.sousFamille.famille.ctiIndex != null}">
+																		<unitEstimator:textConverter styleClass="neoTblData3"
+																			value="#{ProduitDetail.article.sousFamille.famille.ctiIndex.value}" />
+																	</c:when>
+																	<c:otherwise>
+																		<ice:outputText styleClass="neoTblData3" value="-" />
+																	</c:otherwise>
+																</c:choose>
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthM"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<span class="neoTblData4Bis">#{msgs.unitEstimator_common_subfamily_cti}</span>
+															</ice:panelGroup></td>
+														<td class="neoTbxWidthXL"><ice:panelGroup
+																rendered="#{userContext.competitiveActivated}">
+																<c:choose>
+																	<c:when
+																		test="#{ProduitDetail.article.sousFamille.ctiIndex != null}">
+																		<unitEstimator:textConverter styleClass="neoTblData3"
+																			value="#{ProduitDetail.article.sousFamille.ctiIndex.value}" />
+																	</c:when>
+																	<c:otherwise>
+																		<ice:outputText styleClass="neoTblData3" value="-" />
+																	</c:otherwise>
+																</c:choose>
+															</ice:panelGroup></td>
+													</tr>
+												</table>
+												<hr />
+												<table>
+													<tr>
+														<td class="neoTbxWidthM" id="detailTableCellRef2"><span
+															class="neoTblData4Bis">#{msgs.unitEstimator_common_weight}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.infoMasse}" /></td>
+														<td class="neoTbxWidthM" id="detailTableCellRef3"><span
+															class="neoTblData4Bis">#{msgs.unitEstimator_price_cost_price}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.prixAchat}">
+																<f:converter converterId="icefaces.PrixConverter" />
+															</unitEstimator:textConverter></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_length_height_width}</span>
+														</td>
+														<td class="neoTbxWidthXL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.infoDimension}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_range}</span>
+														</td>
+														<td
+															class="neoTbxWidthM troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																value="#{ProduitDetail.article.gamme}"
+																title="#{ProduitDetail.article.gamme}"
+																size="#{maximumSize}" /></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_volume}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.infoVolume}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_date_creation}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.dateCreation}">
+																<f:convertDateTime dateStyle="default" />
+															</unitEstimator:textConverter></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_surface}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.infoSurface}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_date_end}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.dateExtinction}">
+																<f:convertDateTime dateStyle="default" />
+															</unitEstimator:textConverter></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_materia}</span>
+														</td>
+														<td
+															class="neoTbxWidthL troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																title="#{ProduitDetail.article.matiere}"
+																value="#{ProduitDetail.article.matiere}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_date_last_price}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.dateLastPrice}">
+																<f:convertDateTime type="both" dateStyle="long"
+																	timeStyle="default" />
+															</unitEstimator:textConverter></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_brand}</span>
+														</td>
+														<td
+															class="neoTbxWidthL  troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																value="#{ProduitDetail.article.brand}"
+																title="#{ProduitDetail.article.brand}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_date_import}</span>
+														</td>
+														<td class="neoTbxWidthL"><unitEstimator:textConverter
+																styleClass="neoTblData3"
+																value="#{ProduitDetail.article.dateImport}">
+																<f:convertDateTime dateStyle="default" />
+															</unitEstimator:textConverter></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_original_supplier}</span>
+														</td>
+														<td
+															class="neoTbxWidthL  troncLongTextDataTemplate parentOfCuttedText"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 cutLongTextTemplate"
+																value="#{ProduitDetail.article.originalSupplier}"
+																title="#{ProduitDetail.article.originalSupplier}"
+																size="#{maximumSize}" /></td>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_article_remplaces}</span>
+														</td>
+														<td class="neoTbxWidthL troncLongTextDataTemplate"
+															style="max-width: 260px;"><c:forEach
+																items="#{ProduitDetail.remplaces}"
+																var="referenceRemplaces">
+																<ice:commandLink action="#{ProduitDetail.detail}"
+																	immediate="true" title="#{referenceRemplaces}"
+																	value="#{referenceRemplaces}"
+																	disabled="#{referenceRemplaces eq '-'}">
+																	<f:param name="reference" value="#{referenceRemplaces}" />
+																</ice:commandLink>
+															</c:forEach></td>
+													</tr>
+													<tr>
+														<td class="neoTbxWidthM"><span class="neoTblData4Bis">#{msgs.unitEstimator_common_article_remplacant}</span>
+														</td>
+														<td class="neoTbxWidthL troncLongTextDataTemplate"
+															style="max-width: 260px;"><c:forEach
+																items="#{ProduitDetail.remplacant}"
+																var="referenceRemplacant">
+																<ice:commandLink action="#{ProduitDetail.detail}"
+																	immediate="true" title="#{referenceRemplacant}"
+																	value="#{referenceRemplacant}"
+																	disabled="#{referenceRemplacant eq '-'}">
+																	<f:param name="reference"
+																		value="#{referenceRemplacant}" />
+																</ice:commandLink>
+															</c:forEach></td>
+														<td class="neoTbxWidthM"></td>
+														<td class="neoTbxWidthL troncLongTextDataTemplate"
+															style="max-width: 260px;"></td>
+													</tr>
+												</table> <ice:outputText value="&lt;hr/&gt;" escape="false"
+													rendered="#{!ProduitDetail.customAttrArticleDisplayWrapperList.isEmpty()}" />
+												<ice:outputText value="&lt;table&gt;" escape="false"
+													rendered="#{!ProduitDetail.customAttrArticleDisplayWrapperList.isEmpty()}" />
+												<c:forEach
+													items="#{ProduitDetail.customAttrArticleDisplayWrapperList}"
+													var="customAttriDisplayArticleWrapper" varStatus="status">
+													<tr>
+														<td class="neoTbxWidthM" id="detailTableCellRef4"><span
+															class="neoTblData4Bis">#{customAttriDisplayArticleWrapper.title}</span>
+														</td>
+														<td class="neoTbxWidthL troncLongTextDataTemplate"
+															style="max-width: 260px;"><unitEstimator:textConverter
+																styleClass="neoTblData3 troncLongTextDataTemplate"
+																title="#{customAttriDisplayArticleWrapper.value}"
+																value="#{customAttriDisplayArticleWrapper.value}"
+																size="#{maximumSize}" /></td>
+													</tr>
+												</c:forEach> <ice:outputText value="&lt;/table&gt;" escape="false"
+													rendered="#{!ProduitDetail.customAttrArticleDisplayWrapperList.isEmpty()}" />
+												<hr /> <c:if
+													test="#{fn:length(ProduitDetail.article.monetaryFeatures) > 0 or fn:length(ProduitDetail.article.coefficientFeatures) > 0}">
+													<ice:panelGroup
+														style="float:left; margin-right:12px;margin-bottom:6px;"
+														rendered="#{fn:length(ProduitDetail.article.monetaryFeatures) > 0}">
+
+														<ice:outputText
+															value="#{msgs.unitEstimator_rules_tabbed_panel_monetary_caracteristics}"
+															styleClass="neoTblColTitle2Mid-up" />
+
+														<ice:dataTable
+															value="#{ProduitDetail.orderedMonetaryFeatures}"
+															var="paramDisplay" style="margin-top:6px;"
+															columnClasses="neoTbxWidthL neoTbxWidthL neoTbxWidthXS">
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="#{msgs.unitEstimator_common_type}"
+																		styleclass="neoTblData4Bis" />
+																</f:facet>
+																<ice:outputText styleClass="neoTblData3"
+																	value="#{paramDisplay.secondaryFeature.parent.name}" />
+															</ice:column>
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="#{msgs.unitEstimator_common_libelle}"
+																		styleclass="neoTblData4Bis" />
+																</f:facet>
+																<ice:outputText styleClass="neoTblData3"
+																	value="#{paramDisplay.secondaryFeature.name}" />
+															</ice:column>
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="#{msgs.unitEstimator_common_value}"
+																		styleclass="neoTblData4Bis" />
+																</f:facet>
+																<ice:outputText styleClass="neoTblData3"
+																	value="#{paramDisplay.monetaryValue}" />
+															</ice:column>
+														</ice:dataTable>
+
+													</ice:panelGroup>
+													<ice:panelGroup style="float:left;"
+														rendered="#{fn:length(ProduitDetail.article.coefficientFeatures) > 0}">
+
+														<ice:outputText
+															value="#{msgs.unitEstimator_rules_tabbed_panel_coefficient_caracteristics}"
+															styleClass="neoTblColTitle2Mid-up" />
+
+														<ice:dataTable
+															value="#{ProduitDetail.orderedCoefficientFeatures}"
+															var="paramDisplay" style="margin-top:6px;"
+															columnClasses="neoTbxWidthL neoTbxWidthL">
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="#{msgs.unitEstimator_common_type}"
+																		styleclass="neoTblData4Bis" />
+																</f:facet>
+																<ice:outputText styleClass="neoTblData3"
+																	value="#{paramDisplay.secondaryFeature.parent.name}" />
+															</ice:column>
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="#{msgs.unitEstimator_common_value}"
+																		styleclass="neoTblData4Bis" />
+																</f:facet>
+																<ice:outputText styleClass="neoTblData3"
+																	value="#{paramDisplay.secondaryFeature.name}" />
+															</ice:column>
+														</ice:dataTable>
+													</ice:panelGroup>
+													<hr style="clear: both;" />
+												</c:if>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="bandegrise"></div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="bordure_produit_detail"
+													style="border-bottom: none;">
+													<div id="displayPrix">
+														<!-- In all cases -->
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="remarques bordure_produit_detail">
+													<div id="neoProductRemarks">
+														<div class="remarquesValue">
+															<ice:outputText
+																value="#{ProduitDetail.article.commentaire}" />
+														</div>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</ice:form>
+			</div>
+			
+			<ui:include src="history-graph.xhtml">
+				<ui:param name="scrollBarRendered"
+					value="#{ProduitDetail.partHistoryComponent.scrollBarRendered}" />
+				<ui:param name="scrollBarWidth"
+					value="#{ProduitDetail.partHistoryComponent.scrollBarWidth}" />
+			</ui:include>
+
+			<ice:form>
+				<ui:include src="../util/part-history-table-template.xhtml">
+					<ui:param name="component"
+						value="#{ProduitDetail.partHistoryComponent}" />
+				</ui:include>
+			</ice:form>
+
+			<div id="neoAddCountry">
+				<ice:form>
+					<br> </br>
+					<ice:graphicImage styleClass="neoNavCountryPlus"
+						url="#{request.contextPath}/themes/unitEstimator-theme-theme/images/unitEstimator_theme/pic-plus.gif"
+						rendered="#{userContext.competitiveActivated}" />
+					<ice:commandLink styleClass="bold"
+						actionListener="#{ProduitDetail.displayCountryList}"
+						value="#{msgs.unitEstimator_produit_detail_country_add_msg}"
+						rendered="#{userContext.competitiveActivated}" />
+					<div id="neoInpBtn-hi">
+						<ice:commandButton value="#{msgs.unitEstimator_produit_detail_retour}"
+							action="#{Menu.goToCheckCat}" styleClass="neoCmdBtn" />
+						<ice:commandButton value="#{msgs.unitEstimator_link_to_validated_rule}"
+							actionListener="#{ProduitDetail.goToValidatedRule}"
+							disabled="#{ProduitDetail.displayGoToValidatedRuleLink}"
+							styleClass="neoCmdBtn-hi" style="margin-left:14px;">
+							<f:setPropertyActionListener
+								target="#{ProduitDetail.comingFrompage}" value="detail" />
+						</ice:commandButton>
+
+					</div>
+
+					<ice:panelPopup autoPosition="manual" draggable="true" modal="true"
+						styleClass="neoDraggablePopup scrolledPopup33"
+						rendered="#{ProduitDetail.displayCountryList}">
+						<f:facet name="header">
+							<ice:panelGroup>
+								<ice:outputText
+									value="#{msgs.unitEstimator_produit_detail_country_list}"
+									style="padding-left:7px;float:left;" />
+								<ice:commandButton
+									styleClass="popupHeaderImage neoTbxFloatRight"
+									actionListener="#{ProduitDetail.hideCountryList}"
+									image="#{request.contextPath}/themes/unitEstimator-theme-theme/images/unitEstimator_theme/pic-popupclose.gif">
+								</ice:commandButton>
+							</ice:panelGroup>
+						</f:facet>
+
+						<f:facet name="body">
+							<ice:panelGroup>
+								<ice:dataTable id="countriesTable"
+									value="#{ProduitDetail.catalogCountries}" var="country"
+									columnClasses="neoTbxWidthM">
+									<ice:column>
+										<f:facet name="header">
+											<ice:outputText
+												value="#{msgs.unitEstimator_produit_detail_country_name}"
+												styleClass="neoTblColTitle3-up" />
+										</f:facet>
+										<ice:outputText value="#{country.countryName}" />
+									</ice:column>
+									<ice:column styleClass="countrySelectionClass">
+										<f:facet name="header">
+											<div>
+												<ice:commandLink
+													onclick="check('.countrySelectionClass',true);">
+													<ice:graphicImage alt="Select all"
+														url="#{request.contextPath}/themes/unitEstimator-theme-theme/images/unitEstimator_theme/pic-selectall.png" />
+												</ice:commandLink>
+												<ice:commandLink
+													onclick="check('.countrySelectionClass',false);">
+													<ice:graphicImage alt="Deselect all"
+														url="#{request.contextPath}/themes/unitEstimator-theme-theme/images/unitEstimator_theme/pic-unselectall.png" />
+												</ice:commandLink>
+											</div>
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{country.selected}" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:panelGroup>
+									<ice:commandLink styleClass="neoCmdBtn"
+										actionListener="#{ProduitDetail.hideCountryList}"
+										value="#{msgs.unitEstimator_common_cancel}" />
+									<ice:commandLink styleClass="neoInpBtn-hi"
+										actionListener="#{ProduitDetail.addPartCountryData}"
+										value="#{msgs.unitEstimator_common_validate}" />
+								</ice:panelGroup>
+							</ice:panelGroup>
+						</f:facet>
+					</ice:panelPopup>
+				</ice:form>
+			</div>
+		</div>
+		<div id="cacheDiv" />
+		<ui:include src="../util/util.xhtml" />
+	</ui:define>
+</ui:composition>
+</html>
