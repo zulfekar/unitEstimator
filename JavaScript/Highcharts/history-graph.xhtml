@@ -1,0 +1,101 @@
+<HTML xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:UnitEstimator="http://www.UnitEstimator.com"
+	xmlns:resources="http://www.UnitEstimator.com/resources">
+
+
+<div style="width: 1368px; margin-top:5px;">
+	<div style="margin-bottom: 20px;">
+		<div class="history-graph-container" >
+			<ul>
+				<li><span id="graphDisplay">#{msgs.UnitEstimator_country_rules_graph_display}</span>
+					<a style="display: inline;" class="graph-expand-collapse"
+					href="#" onclick="toggleGraphDisplay();return false;"></a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<script language="javascript" type="text/javascript">
+        // <![CDATA[
+        var labels = {
+	       		part_history: "#{msgs.exportwizard_part_history}",
+	       		
+	       		quantityAxis: "#{msgs.history_element_quantity}",
+	       		price: "#{msgs.price_xAxis}",	       		
+	       		discountXAxis:"#{msgs.UnitEstimator_data_export_file_discount}",
+	       		
+	       		DISCOUNT:"#{msgs.UnitEstimator_common_discount}",
+	       		QUANTITE: "#{msgs.UnitEstimator_segment_quantity_year}",
+	       		PRIX_EN_VIGUEUR: "#{msgs.publishing_catalog_current_price}",
+	       		PRIX_AVANT_UnitEstimator: "#{msgs.UnitEstimator_central_rule_graph_before_UnitEstimator_price}",
+	       		PRIX_CIBLE_UnitEstimator: "#{msgs.UnitEstimator_common_target_price}",
+	       		PRIX_PRECONISE_UnitEstimator: "#{msgs.UnitEstimator_common_recommended_price}",
+	       		PRIX_VALIDE_UnitEstimator: "#{msgs.UnitEstimator_produit_detail_validated_price}",
+	       		PRIX_ACHAT: "#{msgs.UnitEstimator_price_cost_price}",
+	       		PRIX_AVANT: "#{msgs.UnitEstimator_price_old_actual}"
+	       		
+        	};
+        var seriesConfig= [];
+        seriesConfig[labels['PRIX_AVANT_UNITESTIMATOR']] = true;
+        seriesConfig[labels['PRIX_AVANT']] = true;
+        seriesConfig[labels['PRIX_EN_VIGUEUR']] = true;
+        seriesConfig[labels['PRIX_CIBLE_UNITESTIMATOR']] = true;
+        seriesConfig[labels['PRIX_PRECONISE_UNITESTIMATOR']] = true;
+        seriesConfig[labels['PRIX_VALIDE_UNITESTIMATOR']] = true;
+        seriesConfig[labels['PRIX_ACHAT']] = true;
+        seriesConfig[labels['QUANTITE']] = true;
+        seriesConfig[labels['DISCOUNT']] = true;
+        
+        var BASE_URL = window.location.protocol + "//" + window.location.host;
+     
+        var originLabels = {
+        		PART_NUMBER_IMPORT: "#{msgs.UnitEstimator_common_priceupdateorigin_part_number_import}",
+        		SEGMENTATION: "#{msgs.UnitEstimator_common_priceupdateorigin_segmentation}",
+        		PART_SEGMENTATION_UPDATE: "#{msgs.UnitEstimator_common_priceupdateorigin_part_segmentation_update}",
+        		RULE_VALIDATION: "#{msgs.UnitEstimator_common_priceupdateorigin_rule_validation}",
+        		PRICE_VALIDATION: "#{msgs.UnitEstimator_common_priceupdateorigin_price_validation}",
+        		PRICE_SUBMISSION: "#{msgs.UnitEstimator_common_priceupdateorigin_price_submission}",
+        		RULE_DELETION: "#{msgs.UnitEstimator_common_priceupdateorigin_rule_deletion}",
+        		PART_FEATURE_IMPORT: "#{msgs.UnitEstimator_common_priceupdateorigin_part_feature_import}",
+        		PART_FEATURE_UPDATE: "#{msgs.UnitEstimator_common_priceupdateorigin_part_feature_update}",
+        		TEMPLATE_FEATURE_UPDATE: "#{msgs.UnitEstimator_common_priceupdateorigin_template_feature_update}",
+        		INFLATION: "#{msgs.UnitEstimator_common_priceupdateorigin_inflation}",
+        		PART_DELETION: "#{msgs.UnitEstimator_common_priceupdateorigin_part_deletion}",
+        		CAPTIVE_TO_COMPETITIVE: "#{msgs.UnitEstimator_common_priceupdateorigin_captive_to_competitive}",
+        		PRICE_VALIDATION_BY_IMPORT: "#{msgs.UnitEstimator_common_priceupdateorigin_price_validation_by_import}",
+        		FAMILY_DISCOUNT_UPDATE: "#{msgs.UnitEstimator_common_priceupdateorigin_family_discount_update}",
+        		PART_DISCOUNT_UPDATE: "#{msgs.UnitEstimator_common_priceupdateorigin_part_discount_update}",
+        		CENTRAL_RULE_EDIT_PART: "#{msgs.UnitEstimator_common_priceupdateorigin_central_rule_edit_part}",
+        		RULE_VALIDATION_BY_IMPORT: "#{msgs.UnitEstimator_common_priceupdateorigin_rule_validation_by_import}",
+        		RULE_DELETION_BY_IMPORT: "#{msgs.UnitEstimator_common_priceupdateorigin_rule_deletion_by_import}"
+        };
+        // ]]>
+</script>
+
+<div id="historyChartContainer"
+	style="width: 1368px; margin-left: -5px;  overflow-x: auto">
+	
+
+	<div id="graphContainer" style="width: 1368px; margin: 0 auto;">
+
+	</div>
+
+	<div id="legendContainer">
+		<table style="width: 95%; margin-left: 2.5%;">
+		</table>
+	</div>
+
+	<div class="chartScrollBar" onscroll="loadPartialHistoryChart();" style="width: 1368px; margin-left: -5px; overflow-x: auto;">
+		<ice:panelGroup rendered="#{scrollBarRendered}"
+			style="width: #{scrollBarWidth + 280}px; color: white; margin-left: -5px; font-size: 8px;">
+			scroll
+		</ice:panelGroup>
+	</div>
+</div>
+</HTML>
